@@ -137,8 +137,6 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             myGenerate.insertTerminal(nextToken);
             _statementList_();
         }
-        nextToken=lex.getNextToken();
-
         if(nextToken.symbol==8)
         {
             myGenerate.insertTerminal(nextToken);
@@ -149,7 +147,150 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             }
     }
 
-    public void acceptTerminal(int symbol) throws IOException, CompilationException{}
+    public void _whileStatement_() throws IOException, CompilationException
+    {
+        //Expecting while
+        if (nextToken.symbol==36)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected while");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting condition
+        _condition_();
+        nextToken=lex.getNextToken();
+        //Expecting loop
+        if (nextToken.symbol == 23)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected loop.");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting statement
+        _statementList_();
+        nextToken=lex.getNextToken();
+        //Expecting end symbol
+        if (nextToken.symbol==8)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected end");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting loop
+        if (nextToken.symbol==23)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected loop");
+            }
+    }
+
+    public void _procedureStatement_() throws IOException, CompilationException
+    {
+        //Expecting call
+        if (nextToken.symbol==3)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected call");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting identifier
+        if (nextToken==16)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected identifier");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting left parenthesis
+        if(nextToken.symbol==20)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected left parenthesis");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting argument list
+        _argumentList_();
+        nextToken=lex.getNextToken();
+        //Expecting right parenthesis
+        if(nextToken.symbol==29)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected right parenthesis");
+            }
+    }
+
+    public void _untilStatement_() throws IOException, CompilationException
+    {
+        //Expecting do
+        if (nextToken.symbol == 7)
+        {
+            myGenerate.insertTerminal(nextToken);
+
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected do");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting statement list
+        _statementList_();
+        nextToken=lex.getNextToken();
+        //Expecting until
+        if (nextToken.symbol==35)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected until");
+            }
+        nextToken=lex.getNextToken();
+        //Expecting condition
+        _condition_();
+    }
+
+    public void _forStatement_() throws IOException, CompilationException
+    {
+        //Expecting for
+        if (nextToken.symbol == 37)
+        {
+            myGenerate.insertTerminal(nextToken);
+        }
+        else
+            {
+                myGenerate.reportError(nextToken, "Expected for");
+            }
+
+        
+
+    }
+
+    //
+    public void acceptTerminal(int symbol) throws IOException, CompilationException
+    {}
 
 
 }
