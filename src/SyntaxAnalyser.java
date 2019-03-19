@@ -1,18 +1,33 @@
 import java.io.IOException;
 
+/**
+ * @author
+ * This class analyses the syntax of tokens and reports any errors that are present
+ */
 public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
 
     int indentCounter = 0;
 
+    /**
+     * This is the constructor for this class
+     * @param filename
+     * @throws IOException
+     */
     public SyntaxAnalyser(String filename) throws IOException
     {
         lex = new LexicalAnalyser(filename);
     }
 
+    /**
+     * Statement part in the format
+     * begin <statement list> end
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _statementPart_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("statementPart");
-
+        //Expecting begin token
         if (nextToken.symbol==2)
         {
             myGenerate.insertTerminal(nextToken);
@@ -22,6 +37,7 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
                 myGenerate.reportError(nextToken, "Begin Expected");
             }
         _statementList_();
+        //Expecting end
         if (nextToken.symbol==8)
         {
             myGenerate.insertTerminal(nextToken);
@@ -30,6 +46,7 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
                 myGenerate.reportError(nextToken, "Expected end");
             }
         nextToken=lex.getNextToken();
+        //Expecting end of file
         if(nextToken.symbol==10)
         {
             myGenerate.insertTerminal(nextToken);
@@ -39,7 +56,13 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
                 myGenerate.reportError(nextToken, "expected end of file");
             }
     }
-    //Sort out logic here
+
+    /**
+     * Statement list in the format
+     * <statement> | <statement list> ; <statement>
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _statementList_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("statementList");
@@ -69,6 +92,13 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
 
     }
 
+    /**
+     * Statement in the format
+     * <assignment statement> | <if statement> | <while statement> | <procedure statement>
+     *     | <until statement> | <for statement>
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _statement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("statement");
@@ -96,12 +126,16 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         {
             _forStatement_();
         }
-        //System.out.println(nextToken.text);
-        //nextToken=lex.getNextToken();
-        //System.out.println(nextToken.text);
+
         myGenerate.finishNonterminal("statement");
     }
 
+    /**
+     * Assign statement in the format
+     * identifier := <expresssion> | identifier := stringConstant
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _assignStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("assignStatements");
@@ -137,6 +171,14 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
 
     }
 
+    /**
+     * if statement in the format
+     *
+     * if <condition> then <statement list> end if |
+     * if <condition> then <statement list> else <statement list> end if
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _ifStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("ifStatement");
@@ -180,6 +222,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("ifStatement");
     }
 
+    /**
+     * while statement in the format
+     * while <condition> loop <statement list> end loop
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _whileStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("whileStatement");
@@ -192,7 +240,6 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             {
                 myGenerate.reportError(nextToken, "Expected while");
             }
-    //    nextToken=lex.getNextToken();
         //Expecting condition
         _condition_();
         nextToken=lex.getNextToken();
@@ -205,10 +252,9 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             {
                 myGenerate.reportError(nextToken, "Expected loop.");
             }
-        //nextToken=lex.getNextToken();
+
         //Expecting statement
         _statementList_();
-     //   nextToken=lex.getNextToken();
         //Expecting end symbol
         if (nextToken.symbol==8)
         {
@@ -231,6 +277,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("whileStatement");
     }
 
+    /**
+     * procedure statement in the format
+     * call identifier ( <argument list> )
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _procedureStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("procedureStatement");
@@ -255,7 +307,6 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             }
         nextToken=lex.getNextToken();
         //Expecting left parenthesis
-        //System.out.println(nextToken.text + "\n\n");
         if(nextToken.symbol==20)
         {
             myGenerate.insertTerminal(nextToken);
@@ -267,7 +318,6 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         nextToken=lex.getNextToken();
         //Expecting argument list
         _argumentList_();
-        //nextToken=lex.getNextToken();
         //Expecting right parenthesis
         if(nextToken.symbol==29)
         {
@@ -281,6 +331,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("procedureStatement");
     }
 
+    /**
+     * until statement in the format
+     * do <statement list> until <condition>
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _untilStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("untilStatement");
@@ -313,6 +369,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("untilStatement");
     }
 
+    /**
+     * for statement in the format
+     * for ( <assignment statement> ; <condition> ; <assignment statement> ) do <statement list> end loop
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _forStatement_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("forStatement");
@@ -325,7 +387,7 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
             {
                 myGenerate.reportError(nextToken, "Expected for");
             }
-        //Expecting lft parenthesis
+        //Expecting left parenthesis
         nextToken=lex.getNextToken();
         if(nextToken.symbol==20)
         {
@@ -412,6 +474,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("forStatement");
     }
 
+    /**
+     * argument list in the format
+     * identifier | <argument list> , identifier
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _argumentList_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("argumentList");
@@ -435,6 +503,14 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("argumentList");
     }
 
+    /**
+     * condition in the format
+     * identifier <conditional operator> identifier|
+     * identifier <conditional operator> numberConstant|
+     * identifier <conditional operator> stringConstant|
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _condition_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("condition");
@@ -465,6 +541,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("conditional");
     }
 
+    /**
+     * conditional operator in the format
+     * > | >= | = | /= | < | <=
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _conditionalOperator_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("conditionalOperator");
@@ -480,6 +562,13 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("conditionalOperator");
     }
 
+    /**
+     * expression in the form
+     * <term> | <expression> + <term> |
+     * <expression> - <term>
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _expression_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("expression");
@@ -496,6 +585,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
 
     }
 
+    /**
+     * term in the format
+     * <factor> | <term> * <factor> | <term> / <factor>
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _term_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("term");
@@ -513,6 +608,12 @@ public class SyntaxAnalyser extends AbstractSyntaxAnalyser {
         myGenerate.finishNonterminal("term");
     }
 
+    /**
+     * factor in the format
+     * identifier | numberConstant | ( <expression> )
+     * @throws IOException
+     * @throws CompilationException
+     */
     public void _factor_() throws IOException, CompilationException
     {
         myGenerate.commenceNonterminal("factor");
